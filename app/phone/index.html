@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Capri">
+<meta name="theme-color" content="#0a0a10">
+<title>Capri</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="title"><span class="name">CAPRI</span><span class="word">phone</span><span id="state" class="state"></span><button id="pcKey" class="key mini" type="button" hidden>PC</button></header>
+<main id="pair" class="page" hidden>
+<div class="head"><span>PAIR THIS PHONE</span></div>
+<p class="note">On the PC open Capri+ settings, the PHONE tab, and press PAIR NEW PHONE. Type the code it shows here.</p>
+<label class="caption" for="code">Pairing code</label>
+<div class="entry"><input id="code" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" maxlength="6" inputmode="text"></div>
+<button id="pairKey" class="key loud" type="button">PAIR</button>
+<p id="pairNote" class="note"></p>
+</main>
+<main id="room" class="page" hidden>
+<div class="stage"><canvas id="her"></canvas></div>
+<section id="bubble" class="bubble" hidden><p id="youLine" class="you"></p><p class="her"><b>CAPRI:</b> <span id="herLine"></span><i id="caret" class="caret"></i></p></section>
+<div class="head"><span>CHAT</span><button id="chatFull" class="full" type="button" aria-label="Full screen chat" aria-pressed="false"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 1v5H1M15 6h-5V1M10 15v-5h5M1 10h5v5"/></svg></button></div>
+<ol id="log" class="log"></ol>
+<div class="talkrow"><button id="talkKey" class="key talk" type="button">HOLD TO TALK</button><div class="toggle" role="group" aria-label="Her voice"><span>VOICE</span><button id="voiceOff" class="off" type="button">OFF</button><button id="voiceOn" class="on" type="button">ON</button></div></div>
+<form id="typeBox" class="typebox"><label for="say">&gt; you:</label><textarea id="say" rows="1" autocomplete="off" enterkeyhint="send"></textarea><button id="sayKey" class="key loud" type="submit">SEND</button></form>
+</main>
+<main id="pcSheet" class="sheet" hidden>
+<div class="head"><span>PC VIEW</span></div>
+<div class="pcrow"><button id="lookKey" class="key loud" type="button">LOOK NOW</button><button id="scKeyOpen" class="key" type="button">SHORTCUTS</button><button id="pcBack" class="key" type="button">BACK</button></div>
+<div class="pcrow"><button id="stopKey" class="key" type="button">STOP JOB</button><button id="pauseKey" class="key" type="button">PAUSE</button><button id="wakeKey" class="key" type="button">WAKE</button></div>
+<p id="pcNote" class="note"></p>
+<img id="shot" class="shot" alt="Your PC screen" hidden>
+<p class="caption">Running</p>
+<ul id="jobs" class="list"></ul>
+<p class="caption">While you were away</p>
+<ul id="digest" class="list"></ul>
+<p class="caption">Quick settings</p>
+<div class="entry"><input id="setFind" autocomplete="off" spellcheck="false" placeholder="find a setting"></div>
+<ul id="settings" class="list"></ul>
+</main>
+<main id="scSheet" class="sheet" hidden>
+<div class="head"><span>SHORTCUTS</span></div>
+<div class="pcrow"><button id="scMake" class="key loud" type="button">MAKE KEY</button><button id="scBack" class="key" type="button">BACK</button></div>
+<p class="note">iPhone shortcuts reach me with their own key. Make one, copy it, and put it where a step says KEY. A new key turns the old one off; this phone stays paired.</p>
+<div id="scKeyRow" class="keyrow" hidden><code id="scKey" class="token"></code><button id="scCopy" class="key" type="button">COPY</button></div>
+<p id="scNote" class="note"></p>
+<p class="caption">Address</p>
+<p class="note"><code id="scHome" class="token"></code></p>
+<p class="caption">Every call</p>
+<ul class="list steps"><li>Get Contents of URL with the address in front of the path, header Authorization = Bearer KEY, Request Body JSON.</li></ul>
+<p class="caption">Talk to Capri (Siri, Action Button)</p>
+<ol class="list steps">
+<li>Dictate Text.</li>
+<li>Get Contents of URL: /api/say, Method POST, JSON: text = Dictated Text, run = true (Boolean), voice = false.</li>
+<li>Get Dictionary Value said, then Speak Text.</li>
+<li>Get Dictionary Value actions, Repeat with Each, and do each one as below.</li>
+</ol>
+<p class="caption">Doing an action</p>
+<ul class="list steps">
+<li>kind alarm: Create Alarm at the value at, label text.</li>
+<li>kind timer: Start Timer for minutes minutes.</li>
+<li>kind reminder: Add New Reminder text, alert at at.</li>
+<li>kind music: Search Music for text, then Play Music.</li>
+<li>kind focus: Set Focus text, on when on is true, off when false.</li>
+</ul>
+<p class="caption">Capri sync (automations, Run Immediately)</p>
+<ol class="list steps">
+<li>Get Contents of URL: /api/actions (GET).</li>
+<li>Get Dictionary Value actions, Repeat with Each: do it as above, then Add id to Variable done.</li>
+<li>Get Contents of URL: /api/actions/done, POST, JSON: ids = done combined with commas.</li>
+<li>Run it on charger connected, arriving home, alarm stopped, and at 08:00, 14:00 and 20:00.</li>
+</ol>
+<p class="caption">Show Capri (Share Sheet: images, links, text)</p>
+<ol class="list steps">
+<li>If Shortcut Input is an image: Convert Image to JPEG, then Get Contents of URL: /api/share?text=your line, POST, header Content-Type = image/jpeg, Request Body File = the JPEG.</li>
+<li>Otherwise: Get Contents of URL: /api/share, POST, JSON: link = Shortcut Input.</li>
+<li>Get Dictionary Value said, then Show Result.</li>
+</ol>
+<p class="caption">Events (automations, Run Immediately)</p>
+<ul class="list steps">
+<li>/api/event, POST, JSON: kind = home when you arrive, left when you leave.</li>
+<li>kind = alarm when an alarm is stopped.</li>
+<li>kind = focus, value = on or off, name = the Focus, when a Focus turns on or off.</li>
+<li>kind = sleep, value = hours slept (Find Health Samples, Sleep), each morning.</li>
+<li>kind = steps, value = today's steps (Find Health Samples, Steps), in the evening.</li>
+</ul>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

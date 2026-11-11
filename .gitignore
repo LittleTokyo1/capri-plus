@@ -1,0 +1,11 @@
+out/
+cross/bin/
+cross/obj/
+node_modules/
+
+bridge/logs/
+bridge/.claude/settings.local.json
+
+docs/notes/.obsidian/
+
+CLAUDE.local.md

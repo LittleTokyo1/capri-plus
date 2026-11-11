@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Capri System Map</title>
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  :root {
+    --ground: rgb(10,10,16); --glow: rgb(54,14,26); --band: rgb(16,12,20); --rule: rgb(44,122,134);
+    --rose: rgb(255,93,102); --white: rgb(236,236,241); --faint: rgb(146,130,140); --field: rgb(17,16,28);
+    --edge: rgb(92,24,36); --hot: rgb(232,66,70); --cyan: rgb(94,240,246); --deep: rgb(9,30,33);
+    --deepedge: rgb(40,120,132); --well: rgb(12,11,20); --brim: rgb(120,30,44); --dash: rgb(78,28,40);
+  }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; background: var(--ground); }
+  body { font-family: "Bahnschrift SemiCondensed", "Bahnschrift", "Segoe UI", sans-serif; color: var(--white); font-size: 12px; line-height: 1.4; }
+  .head { font-family: "Bahnschrift SemiBold Condensed", "Bahnschrift SemiBold", "Segoe UI Semibold", sans-serif; }
+  .page { width: 297mm; height: 210mm; padding: 8mm 10mm 12mm; page-break-after: always; position: relative; overflow: hidden;
+    background: linear-gradient(180deg, var(--glow) 0, rgba(54,14,26,0) 58mm), var(--ground); border: 1px solid var(--brim); }
+  .page:last-child { page-break-after: auto; }
+  .page::before { content: ""; position: absolute; top: 0; left: 0; width: 46mm; height: 2px; background: var(--hot); }
+  .top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 5px; }
+  h1 { font-size: 30px; margin: 0; color: var(--rose); font-weight: 400; letter-spacing: .05em; text-transform: uppercase; }
+  .tagline { color: var(--faint); font-size: 12px; margin: 1px 0 7px; max-width: 200mm; }
+  .chip { font-size: 10.5px; color: var(--faint); letter-spacing: .12em; text-transform: uppercase; }
+  .chip b { color: var(--cyan); font-weight: 400; }
+  .legend { display: flex; gap: 11px; font-size: 10.5px; color: var(--faint); }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .sw { width: 10px; height: 10px; display: inline-block; border: 1.5px solid; clip-path: polygon(0 0, 100% 0, 100% 62%, 62% 100%, 0 100%); }
+  .sect { margin: 0 0 6px; }
+  .title { font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--white); background: var(--band);
+    border-top: 1px solid var(--rule); padding: 3px 8px 3px 12px; position: relative; margin-bottom: 5px; }
+  .title::before { content: ""; position: absolute; left: 0; top: 4px; width: 3px; height: 11px; background: var(--hot); }
+  .title::after { content: " >"; color: var(--faint); }
+  .row { display: flex; gap: 5px; flex-wrap: wrap; }
+  .box { background: var(--field); border: 1.2px solid var(--edge); padding: 4px 7px 5px; flex: 1 1 0; min-width: 0;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%); }
+  .box b { display: block; font-size: 12.6px; color: var(--rose); font-weight: 400; letter-spacing: .02em; }
+  .box i { font-style: normal; color: var(--white); opacity: .84; font-size: 11px; display: block; }
+  .on { border-color: var(--deepedge); background: var(--deep); }
+  .on b { color: var(--cyan); }
+  .cloud { border-style: dashed; border-color: var(--rule); background: rgb(12,18,24); }
+  .guard { border-color: var(--hot); background: rgb(36,12,20); }
+  .guard b { color: var(--hot); }
+  .tag { font-size: 7.6px; padding: 0 4px; margin-left: 4px; vertical-align: 1px; letter-spacing: .1em; border: 1px solid; }
+  .tc { color: var(--rule); }
+  .pipe { display: flex; align-items: stretch; gap: 0; }
+  .pipe .box { flex: 1 1 0; }
+  .arrow { flex: none; width: 14px; display: flex; align-items: center; justify-content: center; color: var(--hot); font-size: 14px; }
+  .n { font-size: 18px; color: var(--hot); float: left; margin: -1px 6px 0 0; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .wide { display: grid; grid-template-columns: 60mm 1fr 70mm; gap: 8px; }
+  .col { display: flex; flex-direction: column; gap: 6px; } .col > .box, .col > .row, .col > .core { flex: 0 0 auto; }
+  .core { border: 2px solid var(--hot); background: var(--well); padding: 6px 9px; box-shadow: 0 0 16px rgba(232,66,70,.3);
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+  .core b { display: block; font-size: 15px; color: var(--rose); font-weight: 400; } .core i { display: block; font-size: 11.5px; }
+  table { border-collapse: collapse; width: 100%; font-size: 11px; }
+  th, td { border: 1px solid var(--edge); padding: 3px 6px; text-align: left; vertical-align: top; background: var(--field); }
+  th { background: var(--band); color: var(--rose); font-weight: 400; letter-spacing: .08em; text-transform: uppercase; font-size: 10px; }
+  td.k { color: var(--cyan); white-space: nowrap; }
+  .note { border-left: 3px solid var(--hot); background: var(--field); padding: 5px 8px; }
+  .note.cy { border-left-color: var(--cyan); background: var(--deep); }
+  .note b { color: var(--rose); font-weight: 400; }
+  .note.cy b { color: var(--cyan); }
+  .foot { position: absolute; bottom: 5mm; left: 10mm; right: 10mm; font-size: 9.5px; color: var(--faint); display: flex; justify-content: space-between; border-top: 1px solid var(--edge); padding-top: 3px; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="top">
+    <div>
+      <div class="chip">CAPRI+ <b>//</b> SYSTEM MAP <b>//</b> 0.7.9</div>
+      <h1 class="head">Everything she is, on one page</h1>
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="border-color:var(--edge);background:var(--field)"></i>on your PC</span>
+      <span><i class="sw" style="border-color:var(--deepedge);background:var(--deep)"></i>new in 0.7.9</span>
+      <span><i class="sw" style="border-color:var(--rule);background:rgb(12,18,24);border-style:dashed"></i>cloud service</span>
+      <span><i class="sw" style="border-color:var(--hot);background:rgb(36,12,20)"></i>safety rule</span>
+    </div>
+  </div>
+  <div class="tagline">A desktop companion for Windows (C# 5, .NET Framework 4.8). Her memory, ears, voice and settings live on your PC. Only the boxes marked CLOUD send anything out, and each one is a service you connect yourself.</div>
+
+  <div class="wide">
+    <div class="col">
+      <div class="title head">Ways in</div>
+      <div class="box"><b>Your mic</b><i>local Parakeet ears: voice chat, Hey Capri, hotwords for her name, barge-in</i></div>
+      <div class="box"><b>Typing</b><i>the pencil box above her</i></div>
+      <div class="box on"><b>Your phone</b><i>her room as a home-screen web app over Tailscale: chat, hold to talk, PC view, job keys, Shortcuts</i></div>
+      <div class="box cloud"><b>Discord <span class="tag tc">CLOUD</span></b><i>your DMs to her bot, friends' DMs, who's online</i></div>
+      <div class="box on"><b>Discord calls</b><i>call mode: friends in your voice call talk with her</i></div>
+      <div class="box"><b>Her eyes</b><i>screenshots of the monitor you mean; League live data and client</i></div>
+    </div>
+    <div class="col">
+      <div class="title head">Her mind</div>
+      <div class="box"><b>Quick routes (code, no model)</b><i>settings, "what's my cs", "is X online", music, volume, stop, undo: answered straight away</i></div>
+      <div class="box on"><b>Understanding + the moment</b><i>an unclear ask is read with the talk and what's on your PC (Sonnet 5.5 if Smarter brain is on); every path sees one picture of the moment</i></div>
+      <div class="core"><b>Her brain: Claude Haiku 5.5 <span class="tag tc">CLOUD</span></b><i style="font-style:normal;color:var(--faint);opacity:1">The same brain for typing, voice, Discord and the phone. It answers, or picks one of her tools.</i></div>
+      <div class="row">
+        <div class="box"><b>Honesty checks</b><i>say equals do: a claim she can't back with a real action is caught</i></div>
+        <div class="box cloud"><b>Side calls <span class="tag tc">CLOUD</span></b><i>memory pass, judges, summaries (Haiku, Sonnet when it struggles)</i></div>
+      </div>
+      <div class="row">
+        <div class="box guard"><b>In-game lockout</b><i>no clicks, keys or typing while a game runs; never optional</i></div>
+        <div class="box guard"><b>Buy gate + spend cap</b><i>a purchase waits for your yes; monthly API cap</i></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="title head">What she does</div>
+      <div class="box"><b>Voice</b><i>her cloned local voice (Chatterbox), ElevenLabs <span class="tag tc">CLOUD</span> or the free voice as fallback</i></div>
+      <div class="box"><b>Hands</b><i>apps, windows, media, volume; desktop jobs with her pink pointer; buttons by name so your cursor stays free</i></div>
+      <div class="box"><b>Her own browser</b><i>a hidden Chrome for web jobs, never your mouse</i></div>
+      <div class="box on"><b>Her Claude Code sessions</b><i>runs your projects on your plan: questions answered from the project's notes, real decisions asked to you, landing only on your yes</i></div>
+      <div class="box on"><b>Fun and extras</b><i>clones, throw her, hologram, her own clock, diagrams she draws, Discord status art, stream co-host</i></div>
+      <div class="box"><b>League</b><i>pro builds, counters, CS/MIN strip, objective calls, accept and pick while you're away</i></div>
+    </div>
+  </div>
+
+  <div class="sect" style="margin-top:7px">
+    <div class="title head">What she keeps</div>
+    <div class="grid3">
+      <div class="box"><b>Her Obsidian vault (long-term memory)</b><i>me.md with an always-on Core, People notes, a journal page per day, every chat word for word, plans, lessons, what she did. Synced only to your phone.</i></div>
+      <div class="box"><b>Short-term</b><i>the last 32 messages, a rolling summary, the current goal, the moment picture</i></div>
+      <div class="box on"><b>On the PC only</b><i>settings and keys (encrypted), activity log, meaning-search cache. None of it goes into the app you download.</i></div>
+    </div>
+  </div>
+  <div class="foot"><span>Capri+ is a fork of Capri by Lachy (PolyForm Noncommercial 1.0.0)</span><span>1 / 5</span></div>
+</div>
+
+<div class="page">
+  <div class="top">
+    <div>
+      <div class="chip">CAPRI+ <b>//</b> HOW HER BRAIN THINKS</div>
+      <h1 class="head">One thing you say, start to finish</h1>
+    </div>
+  </div>
+  <div class="tagline">Example: you say "tell Sam I'm running late, and remember his birthday is the 30th" while a game is open in the background.</div>
+
+  <div class="pipe" style="margin-bottom:7px">
+    <div class="box"><span class="n head">1</span><b>Hear</b><i>Parakeet turns your voice into text on the PC. Her name is a hotword, and a misheard "Capree" still counts.</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box"><span class="n head">2</span><b>Quick route?</b><i>Obvious commands (volume, stop, a setting) run from code with no model. This one isn't, so it goes on.</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box on"><span class="n head">3</span><b>Understand</b><i>Who is "Sam"? The name matcher finds People/Sam.md (sound-alikes and Lithuanian name forms too). Two Sams? She asks one short question.</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box on"><span class="n head">4</span><b>The moment</b><i>One picture: time, where you are, the game, the window in front, her open job. Each path reads only the slice it needs.</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box"><span class="n head">5</span><b>Think</b><i>Haiku gets one fresh request: her persona, Core notes, what Recall found, lessons, the last 32 messages.</i></div>
+  </div>
+  <div class="pipe" style="margin-bottom:8px">
+    <div class="box"><span class="n head">6</span><b>Pick a tool</b><i>The tool step chooses the discord tool with "running late" for Sam. Hands that click stay locked while the game runs.</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box guard"><span class="n head">7</span><b>Check</b><i>Say equals do: "sent it" is only said when the tool really sent. Guarded settings need your own clear words.</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box"><span class="n head">8</span><b>Answer</b><i>Her voice (or the bubble, or your phone, or Discord when you're away) and the action itself.</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box on"><span class="n head">9</span><b>Remember</b><i>Next to the reply, the memory pass writes "Birthday: 30 October" into People/Sam.md, with the day you said it.</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box"><span class="n head">10</span><b>Keep</b><i>The chat goes to the day's archive; "messaged Sam" goes to her action log, so later she knows it's done.</i></div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <div class="title head">Her memory layers</div>
+      <table>
+        <tr><th>Layer</th><th>What it holds</th><th>When she reads it</th></tr>
+        <tr><td class="k">Core</td><td>who you are, close people, routine, current projects; small on purpose</td><td>every message</td></tr>
+        <tr><td class="k">Recent talk</td><td>last 32 messages, rolling summary, the current goal</td><td>every message</td></tr>
+        <tr><td class="k">Notes</td><td>People, places, facts, each with a date and a link to the day</td><td>when Recall finds them (word and meaning search)</td></tr>
+        <tr><td class="k">Day pages</td><td>what you did each day, from your own words</td><td>"what did I do on Tuesday"</td></tr>
+        <tr><td class="k">Chat archive</td><td>every conversation, by day</td><td>questions about the past</td></tr>
+        <tr><td class="k">Plans + lessons</td><td>promises with dates; what she got wrong</td><td>check-ins raise plans; lessons before she acts</td></tr>
+        <tr><td class="k">Action log</td><td>what she did, as short gists</td><td>so she never claims or repeats things</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <div class="title head">Why her context never piles up</div>
+      <div class="note"><b>Fresh every time.</b> The model keeps nothing between messages. Every request is rebuilt from the parts above, and each part has a cap, so day 300 is as big as day 1.</div>
+      <div class="note cy"><b>Search, not stuffing.</b> Older talk isn't sent along. It's found again when it matters: word search plus a local meaning model (bge-base, on your PC).</div>
+      <div class="note"><b>Changes keep history.</b> "I don't go to the gym anymore" replaces the fact and moves the old one under History with its date. The night review catches missed saves and contradictions.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Typed, voice, Discord and phone all take this same path</span><span>2 / 5</span></div>
+</div>
+
+<div class="page">
+  <div class="top">
+    <div>
+      <div class="chip">CAPRI+ <b>//</b> ON HER OWN</div>
+      <h1 class="head">What she does without being asked</h1>
+    </div>
+  </div>
+  <div class="tagline">Everything she starts herself goes through one gate, so you hear things once, at a good time, in the right place.</div>
+  <div class="pipe" style="margin-bottom:8px">
+    <div class="box"><b>Ideas come in</b><i>heartbeat (calendar, mail, birthdays), offers, away check-ins, friends coming online, care nudges (water, food), morning brief, night wrap-up, follow-ups</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box on"><b>Still true?</b><i>a line about a plan is dropped once the plan is done, dropped, stale or waiting</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box on"><b>One gate</b><i>held if the same line came in 24 h, the same friend in 20 h or the same topic in 48 h; your own reminders always pass</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box"><b>Good time?</b><i>never in quiet hours or while you talk; in a League game only things about the game</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box"><b>Right place</b><i>voice at the PC, Discord when you're away, the away box when you're back, your phone if it's open</i></div>
+  </div>
+
+  <div class="grid3">
+    <div class="col">
+      <div class="title head">Her timers</div>
+      <div class="box"><b>Heartbeat</b><i>every so often: anything worth telling you</i></div>
+      <div class="box"><b>Evening tidy-up</b><i>files notes into the vault, writes the day page, tells you what she filed</i></div>
+      <div class="box"><b>Night review</b><i>missed saves, merged lessons, old plans archived, every change logged</i></div>
+      <div class="box"><b>Fresh start 05:00</b><i>daily restart and a memory cap</i></div>
+    </div>
+    <div class="col">
+      <div class="title head">When you're away</div>
+      <div class="box"><b>Home and away</b><i>"I'm leaving" or your phone leaving the Wi-Fi: she goes quiet; you're back, she wakes</i></div>
+      <div class="box"><b>Long jobs</b><i>hours of work in 20-minute parts, kept across restarts, reports on Discord</i></div>
+      <div class="box on"><b>Auto-reply</b><i>answers friends you listed on Discord (chat back, status only, or ask first); never promises anything for you</i></div>
+    </div>
+    <div class="col">
+      <div class="title head">Autonomy (off until you turn it on)</div>
+      <div class="box"><b>Suggest, ask first, or do and tell</b><i>per area: mail drafts, calendar, reminders, research</i></div>
+      <div class="box guard"><b>Never on her own</b><i>sending in your name, buying, deleting, spending, SECURITY or the lockout</i></div>
+      <div class="box"><b>Undo</b><i>"undo that" removes only what she made</i></div>
+    </div>
+  </div>
+  <div class="foot"><span>Every switch on this page is in Capri+ settings and can be changed by voice</span><span>3 / 5</span></div>
+</div>
+
+<div class="page">
+  <div class="top">
+    <div>
+      <div class="chip">CAPRI+ <b>//</b> NEW IN 0.7.9</div>
+      <h1 class="head">Her projects, your calls, your phone</h1>
+    </div>
+  </div>
+  <div class="tagline">Three bigger things that arrived together. Each is a switch in Capri+, and the first two are off until you turn them on.</div>
+
+  <div class="title head">She runs your Claude Code projects (PROJECTS tab)</div>
+  <div class="pipe" style="margin-bottom:6px">
+    <div class="box on"><b>Start</b><i>one visible Remote Control session at a time, in a folder you listed; read and plan unless the line ends | full; never during a game</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box on"><b>Questions</b><i>routine ones answered from the project's own notes, with the source; real decisions and plans go to you wherever you are</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box on"><b>Long work</b><i>past 250k tokens the session wraps up and a fresh one carries on from its checkpoint</i></div>
+    <div class="arrow">&#10140;</div>
+    <div class="box guard"><b>Landing</b><i>a finished branch is told to you once; it lands only on your yes, and only counts once git shows it on main</i></div>
+  </div>
+  <div class="row" style="margin-bottom:8px">
+    <div class="box"><b>Upstream watch</b><i>new commits in the original Capri get ported on branches</i></div>
+    <div class="box"><b>Her ideas</b><i>one a day, on its own branch; anything about money, keys or safety waits for you</i></div>
+    <div class="box"><b>| watch projects</b><i>read-only: Read, Grep and Glob only, one report a day</i></div>
+    <div class="box"><b>Proposals</b><i>on your ask she thinks a new project through; "start it" makes only a local folder and a plan</i></div>
+  </div>
+
+  <div class="grid2">
+    <div class="col">
+      <div class="title head">Calls (VOICE tab)</div>
+      <div class="box on"><b>Her voice in your mic</b><i>through a virtual cable, friends in Discord or a game hear her and you through one mic</i></div>
+      <div class="box on"><b>Call mode</b><i>friends in your call talk with her; anything that would touch your PC waits for your own yes</i></div>
+      <div class="box"><b>Name needed in games</b><i>in a game she only answers lines with her name, so friends' chatter doesn't set her off</i></div>
+    </div>
+    <div class="col">
+      <div class="title head">Your phone (HOME tab)</div>
+      <div class="box on"><b>Her room on your iPhone</b><i>a home-screen web app, only over Tailscale: her pose follows the PC, chat, hold to talk, her voice on the phone</i></div>
+      <div class="box on"><b>PC view and keys</b><i>see her jobs, stop or pause them, a screenshot only when you ask (never saved)</i></div>
+      <div class="box on"><b>Shortcuts pack</b><i>alarms, timers, reminders, music and Focus through Apple Shortcuts, plus Share to Capri</i></div>
+    </div>
+  </div>
+  <div class="foot"><span>Upstream features ported in 0.7.9: call panel, clones and chaos, code mode, throw, PC checks, diagrams, status moves, stream co-host, clock, clips, hologram, live reactions, free keys</span><span>4 / 5</span></div>
+</div>
+
+<div class="page">
+  <div class="top">
+    <div>
+      <div class="chip">CAPRI+ <b>//</b> SAFETY AND PRIVACY</div>
+      <h1 class="head">The rules she never breaks</h1>
+    </div>
+  </div>
+  <div class="tagline">These hold whatever the settings say, whoever asks, and in every version.</div>
+  <div class="grid3" style="margin-bottom:8px">
+    <div class="box guard"><b>In-game lockout</b><i>while a game runs her hands never click, type or press keys. It can't be switched off, not even by voice or Blackwall mode.</i></div>
+    <div class="box guard"><b>Buying</b><i>a buy button, an order step or a payment always stops for your yes. She never types card numbers, IBANs or PINs.</i></div>
+    <div class="box guard"><b>Your words only</b><i>SECURITY, buying, caps, full access and the never-look list change by voice only when you clearly name them, never on a friend's or her own say-so.</i></div>
+  </div>
+
+  <div class="grid2">
+    <div class="col">
+      <div class="title head">Your data stays yours</div>
+      <div class="box"><b>On your PC and phone</b><i>her vault, your settings and keys (encrypted), her logs. Nothing is uploaded except the requests to the services you connect.</i></div>
+      <div class="box"><b>Never in the app or on GitHub</b><i>friends' names, your accounts, your address and school are kept out of the code, tests and releases. A check refuses to publish a release that contains any of them.</i></div>
+      <div class="box"><b>Screenshots</b><i>never saved to disk; the never-look list hides apps and sites from her eyes</i></div>
+    </div>
+    <div class="col">
+      <div class="title head">Updates</div>
+      <div class="box on"><b>From our own releases only</b><i>the updater reads only github.com/LittleTokyo1/capri-plus (installer, SHA256SUMS.txt, LICENSE.md) and checks the hash</i></div>
+      <div class="box"><b>Asks first, never during a game</b><i>she tells you a new version is ready; it installs on your yes</i></div>
+      <div class="box"><b>One build for everyone</b><i>the build you run is the build your friends get, minus anything personal; features are switches with the same defaults</i></div>
+    </div>
+  </div>
+  <div class="foot"><span>Every build runs a full smoke test of about 900 checks before it can ship</span><span>5 / 5</span></div>
+</div>
+
+</body>
+</html>
